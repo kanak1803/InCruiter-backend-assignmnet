@@ -3,9 +3,11 @@ import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import User from "../models/user";
 
-
 // Register a new user
-export const registerUser = async (req: Request, res: Response): Promise<void> => {
+export const registerUser = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
   const { name, email, password } = req.body;
 
   // Basic input validation
@@ -14,7 +16,9 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
     return;
   }
   if (password.length < 6) {
-    res.status(400).json({ message: "Password must be at least 6 characters long" });
+    res
+      .status(400)
+      .json({ message: "Password must be at least 6 characters long" });
     return;
   }
   if (!/^\S+@\S+\.\S+$/.test(email)) {
@@ -45,6 +49,41 @@ export const registerUser = async (req: Request, res: Response): Promise<void> =
 
     res.status(201).json({ message: "User registered successfully", token });
   } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+export const loginUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      res.status(400).json({ message: "Email and password are required" });
+      return;
+    }
+
+
+    const user = await User.findOne({ email });
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      res.status(401).json({ message: "Invalid credentials" });
+      return;
+    }
+
+    // generate  token
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET as string, {
+      expiresIn: "1h",
+    });
+
+    res.json({ message: "Login successful", token });
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Server error" });
   }
 };
