@@ -79,23 +79,43 @@ The server should now be running at `http://localhost:5000`
   }
   ```
 - **Response:**
+
   ```json
   {
     "token": "your_jwt_token"
   }
   ```
 
-### 🔄 **Password Reset**
+  ### 🔄 **Generate password reset token**
+
+- **URL:** `POST /api/auth/request-reset-password`
+- **Request Body:**
+  ```json
+  {
+    "email": "john@example.com"
+  }
+  ```
+- **Response:**
+
+  ```json
+  {
+    "token": "jwt...dasdsa"
+  }
+
+  ### 🔄 **Password Reset**
+
+  ```
 
 - **URL:** `POST /api/auth/reset-password`
 - **Request Body:**
   ```json
   {
-    "email": "john@example.com",
+    "token": "jwt.....ere",
     "newPassword": "newpassword123"
   }
   ```
 - **Response:**
+
   ```json
   {
     "message": "Password updated successfully"
